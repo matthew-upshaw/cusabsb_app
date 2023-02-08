@@ -1,0 +1,19 @@
+<h4>2022 Conference Standings</h4>
+{% for team in standings %}
+    <p>{{ team.team.name }} ({{ team.wins_overall }}-{{ team.losses_overall }}-{{ team.ties_overall }}, {{ team.wins_conf }}-{{ team.losses_conf }}-{{ team.ties_conf }})</p>
+{% endfor %}
+
+<h4>Current AVG Leaders</h4>
+{% for current_avg_leader in current_avg_leaders %}
+    <p>{{ current_avg_leader }} - {{ current_avg_leader.avg }}</p>
+{% endfor %}
+
+<h4>Current OPS Leaders</h4>
+{% for current_ops_leader in current_ops_leaders %}
+    <p>{{ current_ops_leader }} - {{ current_ops_leader.ops }}</p>
+{% endfor %}
+
+<h4>Current HR Leaders</h4>
+{% for current_hr_leader in current_hr_leaders %}
+    <p>{{ current_hr_leader }} - {{ current_hr_leader.homeruns }}</p>
+{% endfor %}
