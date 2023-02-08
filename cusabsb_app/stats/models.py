@@ -29,6 +29,7 @@ class Batter(models.Model):
     stolen_bases_attempted = models.CharField(max_length=50)
     updated_at = models.DateTimeField()
     is_latest = models.BooleanField()
+    year = models.CharField(max_length=50)
 
     def __str__(self):
         return self.first_name+' '+self.last_name+' - '+self.team
@@ -65,6 +66,7 @@ class Pitcher(models.Model):
     sha = models.CharField(max_length=50)
     updated_at = models.DateTimeField()
     is_latest = models.BooleanField()
+    year = models.CharField(max_length=50)
 
     def __str__(self):
         return self.first_name+' '+self.last_name+' - '+self.team
@@ -86,6 +88,7 @@ class Fielder(models.Model):
     ci = models.CharField(max_length=50)
     updated_at = models.DateField()
     is_latest = models.BooleanField()
+    year = models.CharField(max_length=50)
 
     def __str__(self):
         return self.first_name+' '+self.last_name+' - '+self.team

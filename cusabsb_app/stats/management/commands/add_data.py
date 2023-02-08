@@ -39,6 +39,7 @@ BATTING_COLUMNS = [
     'stolen_bases_attempted',
     'updated_at',
     'is_latest',
+    'year',
 ]
 
 PITCHING_COLUMNS = [
@@ -73,6 +74,7 @@ PITCHING_COLUMNS = [
     'sha',
     'updated_at',
     'is_latest',
+    'year',
 ]
 
 FIELDING_COLUMNS = [
@@ -92,6 +94,7 @@ FIELDING_COLUMNS = [
     'ci',
     'updated_at',
     'is_latest',
+    'year',
 ]
 
 def manipulate_names(df):

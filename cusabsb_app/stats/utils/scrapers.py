@@ -1,6 +1,7 @@
 import requests
 import time
 import json
+import re
 import pandas as pd
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
@@ -94,9 +95,20 @@ FIELDING_COLUMNS = [
         'CI',
     ]
 
+regex = "\d{4}"
+
+def find_table(soup,text_match):
+    for count, table in enumerate(soup.findAll('table')):
+        if type(soup.findAll('table')[count].findAll('caption')) != None:
+            for caption in soup.findAll('table')[count].findAll('caption'):
+                if type(caption.string) != None:
+                    if text_match in caption.string:
+                        target_table = soup.findAll('table')[count]
+                        return(target_table)
+
 def get_team_stats(team,year=""):
     """
-    Return a soup object for selected team and year cumulative stats
+    Return a BeatifulSoup object for selected team and year cumulative stats
     """
     page = requests.get(BASE_URLS[team]+"/stats/{}".format(year))
     soup = bs(page.content, "html.parser")
@@ -105,7 +117,7 @@ def get_team_stats(team,year=""):
 
 def get_team_stats_sel(team,year=""):
     """
-    Return a soup object for selected team and year cumulative stats when selenium is required
+    Return a BeautifulSoup object for selected team and year cumulative stats when selenium is required
     """
 
     options = Options()
@@ -135,8 +147,10 @@ def get_overall_batting_stats(soup):
     Return a pandas dataframe containing a team's overall batting stats
     """
 
-    table = soup.findAll('table')[0]
-    table_rows = table.find_all('tr')
+    #target_table = soup.findAll('table')[0]
+    text_match = 'Individual Overall Batting Statistics'
+    target_table = find_table(soup,text_match)
+    table_rows = target_table.find_all('tr')
 
     res = []
     for tr in table_rows:
@@ -150,6 +164,17 @@ def get_overall_batting_stats(soup):
     df = df_temp.drop(df_temp.tail(2).index).drop(1,axis=1).drop(23,axis=1)
     df.columns = BATTING_COLUMNS
 
+    for tag in soup.findAll('h1'):
+        if re.match(regex, tag.string):
+            year = re.findall(regex, tag.string)[0]
+
+    if 'year' not in locals():
+        for tag in soup.findAll('title'):
+            if re.match(regex, tag.string):
+                year = re.findall(regex, tag.string)[0]
+
+    df['year'] = year
+
     return(df)
 
 def get_overall_pitching_stats(soup):
@@ -157,8 +182,10 @@ def get_overall_pitching_stats(soup):
     Return a pandas dataframe containing a team's overall pitching stats
     """
 
-    table = soup.findAll('table')[1]
-    table_rows = table.find_all('tr')
+    #target_table = soup.findAll('table')[1]
+    text_match = 'Individual Overall Pitching Statistics'
+    target_table = find_table(soup,text_match)
+    table_rows = target_table.find_all('tr')
 
     res = []
     for tr in table_rows:
@@ -172,6 +199,17 @@ def get_overall_pitching_stats(soup):
     df = df_temp.drop(df_temp.tail(2).index).drop(1,axis=1).drop(26,axis=1)
     df.columns = PITCHING_COLUMNS
 
+    for tag in soup.findAll('h1'):
+        if re.match(regex, tag.string):
+            year = re.findall(regex, tag.string)[0]
+
+    if 'year' not in locals():
+        for tag in soup.findAll('title'):
+            if re.match(regex, tag.string):
+                year = re.findall(regex, tag.string)[0]
+
+    df['year'] = year
+
     return(df)
 
 def get_overall_fielding_stats(soup):
@@ -179,8 +217,10 @@ def get_overall_fielding_stats(soup):
     Return a pandas dataframe containing a team's overall fielding stats
     """
 
-    table = soup.findAll('table')[2]
-    table_rows = table.find_all('tr')
+    #target_table = soup.findAll('table')[2]
+    text_match = 'Individual Overall Fielding Statistics'
+    target_table = find_table(soup,text_match)
+    table_rows = target_table.find_all('tr')
 
     res = []
     for tr in table_rows:
@@ -193,6 +233,17 @@ def get_overall_fielding_stats(soup):
     df_temp = pd.DataFrame(res)
     df = df_temp.drop(df_temp.tail(2).index).drop(1,axis=1).drop(13,axis=1)
     df.columns = FIELDING_COLUMNS
+
+    for tag in soup.findAll('h1'):
+        if re.match(regex, tag.string):
+            year = re.findall(regex, tag.string)[0]
+
+    if 'year' not in locals():
+        for tag in soup.findAll('title'):
+            if re.match(regex, tag.string):
+                year = re.findall(regex, tag.string)[0]
+
+    df['year'] = year
 
     return(df)
 
