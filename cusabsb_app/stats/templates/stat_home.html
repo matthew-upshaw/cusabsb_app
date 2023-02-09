@@ -1,19 +1,205 @@
-<h4>2022 Conference Standings</h4>
-{% for team in standings %}
-    <p>{{ team.team.name }} ({{ team.wins_overall }}-{{ team.losses_overall }}-{{ team.ties_overall }}, {{ team.wins_conf }}-{{ team.losses_conf }}-{{ team.ties_conf }})</p>
-{% endfor %}
+{% extends 'base.html' %}
+{% block content %}
 
-<h4>Current AVG Leaders</h4>
-{% for current_avg_leader in current_avg_leaders %}
-    <p>{{ current_avg_leader }} - {{ current_avg_leader.avg }}</p>
-{% endfor %}
+    <h1 class="my-3">2022 C-USA Cumulative Stats</h1>
+    <button type="button" class="btn btn-secondary" onclick="changeActiveStat('batting_stats')">Batting</button>
+    <button type="button" class="btn btn-secondary" onclick="changeActiveStat('pitching_stats')">Pitching</button>
+    <button type="button" class="btn btn-secondary" onclick="changeActiveStat('fielding_stats')">Fielding</button>
+    <div id="batting_stats" class="mt-3" style="display: block">
+        <h3>Batting Stats</h3>
+        <table class="table table-responsive table-striped table-hover sortable">
+            <thead class="bg-light sticky-top top-0">
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Team</th>
+                    <th>OPS</th>
+                    <th>AVG</th>
+                    <th>OBP</th>
+                    <th>SLG</th>
+                    <th>RBI</th>
+                    <th>R</th>
+                    <th>2B</th>
+                    <th>3B</th>
+                    <th>HR</th>
+                    <th>BB</th>
+                    <th>K</th>
+                    <th>GP</th>
+                    <th>GS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for batter in batters %}
+                    <tr>
+                        <td>{{ batter.first_name }}</td>
+                        <td>{{ batter.last_name }}</td>
+                        <td>{{ batter.team }}</td>
+                        <td>{{ batter.ops }}</td>
+                        <td>{{ batter.avg }}</td>
+                        <td>{{ batter.obp }}</td>
+                        <td>{{ batter.slg }}</td>
+                        <td>{{ batter.rbi }}</td>
+                        <td>{{ batter.runs }}</td>
+                        <td>{{ batter.doubles }}</td>
+                        <td>{{ batter.triples }}</td>
+                        <td>{{ batter.homeruns }}</td>
+                        <td>{{ batter.bb }}</td>
+                        <td>{{ batter.so }}</td>
+                        <td>{{ batter.games_played }}</td>
+                        <td>{{ batter.games_started }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div id="pitching_stats" class="mt-3" style="display: none">
+        <h3>Pitching Stats</h3>
+        <table class="table table-responsive table-striped table-hover sortable">
+            <thead class="bg-light sticky-top top-0">
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Team</th>
+                    <th>ERA</th>
+                    <th>WHIP</th>
+                    <th>W</th>
+                    <th>L</th>
+                    <th>IP</th>
+                    <th>CG</th>
+                    <th>K</th>
+                    <th>BB</th>
+                    <th>2B</th>
+                    <th>3B</th>
+                    <th>HR</th>
+                    <th>APP</th>
+                    <th>GS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pitcher in pitchers %}
+                    <tr>
+                        <td>{{ pitcher.first_name }}</td>
+                        <td>{{ pitcher.last_name }}</td>
+                        <td>{{ pitcher.team }}</td>
+                        <td>{{ pitcher.era }}</td>
+                        <td>{{ pitcher.whip }}</td>
+                        <td>{{ pitcher.wins }}</td>
+                        <td>{{ pitcher.losses }}</td>
+                        <td>{{ pitcher.ip }}</td>
+                        <td>{{ pitcher.cg }}</td>
+                        <td>{{ pitcher.so }}</td>
+                        <td>{{ pitcher.bb }}</td>
+                        <td>{{ pitcher.doubles }}</td>
+                        <td>{{ pitcher.triples }}</td>
+                        <td>{{ pitcher.homeruns }}</td>
+                        <td>{{ pitcher.games_appeared }}</td>
+                        <td>{{ pitcher.games_started }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-<h4>Current OPS Leaders</h4>
-{% for current_ops_leader in current_ops_leaders %}
-    <p>{{ current_ops_leader }} - {{ current_ops_leader.ops }}</p>
-{% endfor %}
+    <div id="fielding_stats" class="mt-3" style="display: none">
+        <h3>Fielding Stats</h3>
+        <table class="table table-responsive table-striped table-hover sortable">
+            <thead class="bg-light sticky-top top-0">
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Team</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fielder in pitchers %}
+                    <tr>
+                        <td>{{ fielder.first_name }}</td>
+                        <td>{{ fielder.last_name }}</td>
+                        <td>{{ fielder.team }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-<h4>Current HR Leaders</h4>
-{% for current_hr_leader in current_hr_leaders %}
-    <p>{{ current_hr_leader }} - {{ current_hr_leader.homeruns }}</p>
-{% endfor %}
+<!--
+    <div class="row">
+        <div class = "col">
+            <h4>2022 Conference Standings</h4>
+            {% for team in standings %}
+                <p>{{ team.team.name }} ({{ team.wins_overall }}-{{ team.losses_overall }}-{{ team.ties_overall }}, {{ team.wins_conf }}-{{ team.losses_conf }}-{{ team.ties_conf }})</p>
+            {% endfor %}
+        </div>
+        <div class="col">
+            <div class="row">
+                <div class="btn-group" role="group" aria-label="batting_group">
+                    <button id="avg_button" class="btn btn-secondary" onclick="changeActiveStat('avg_leader')">AVG</button>
+                    <button id="ops_button" class="btn btn-secondary" onclick="changeActiveStat('ops_leader')">OPS</button>
+                    <button id="hr_button" class="btn btn-secondary" onclick="changeActiveStat('hr_leader')">HR</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div id="avg_leader" style="display: block">
+                    <h4>Current AVG Leaders</h4>
+                    <table class="table table-striped table-hover">
+                        <thead class="bg-light sticky-top top-0">
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Team</th>
+                                <th>AVG</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for current_avg_leader in current_avg_leaders %}
+                                <tr>
+                                    <td>{{ current_avg_leader.first_name }}</td>
+                                    <td>{{ current_avg_leader.last_name }}</td>
+                                    <td>{{ current_avg_leader.team }}</td>
+                                    <td>{{ current_avg_leader.avg }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table> 
+                </div>
+            </div>
+
+            <div class="row">
+                <div id="ops_leader" style="display: none">
+                    <h4>Current OPS Leaders</h4>
+                    {% for current_ops_leader in current_ops_leaders %}
+                        <p>{{ current_ops_leader }} - {{ current_ops_leader.ops }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div id="hr_leader" style="display: none">
+                    <h4>Current HR Leaders</h4>
+                    {% for current_hr_leader in current_hr_leaders %}
+                        <p>{{ current_hr_leader }} - {{ current_hr_leader.homeruns }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+-->
+
+    <script>
+        function changeActiveStat(activeStat) {
+            const statIdArray = ["batting_stats","pitching_stats","fielding_stats"]
+            const hideStatIdArray = statIdArray.filter(function(inactiveStat) {
+                return inactiveStat !== activeStat
+            });
+            for (const div of hideStatIdArray) {
+                var inactiveDIV = document.getElementById(div);
+                inactiveDIV.style.display = 'none';
+            }
+            var activeDIV = document.getElementById(activeStat);
+            activeDIV.style.display = 'block';
+        }
+    </script>
+
+{% endblock content %}

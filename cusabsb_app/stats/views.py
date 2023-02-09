@@ -14,9 +14,9 @@ from teams.models import (
 )
 
 def stat_home(request):
-    batters = Batter.objects.all()
-    pitchers = Pitcher.objects.all()
-    fielders = Fielder.objects.all()
+    batters = Batter.objects.filter(is_latest=True).order_by('-ops')
+    pitchers = Pitcher.objects.filter(is_latest=True)
+    fielders = Fielder.objects.filter(is_latest=True)
 
     current_avg_leaders = Batter.objects.annotate(
         games_played_int=Cast('games_played',output_field=IntegerField())

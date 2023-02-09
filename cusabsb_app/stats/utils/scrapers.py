@@ -5,6 +5,7 @@ import re
 import pandas as pd
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
@@ -110,7 +111,13 @@ def get_team_stats(team,year=""):
     """
     Return a BeatifulSoup object for selected team and year cumulative stats
     """
-    page = requests.get(BASE_URLS[team]+"/stats/{}".format(year))
+    try:
+        page = requests.get(f'{BASE_URLS[team]}/stats/{year}')
+        print(f'\033[92mSuccessfully connected to {BASE_URLS[team]}/stats/{year}\033[0m')
+    except requests.exceptions.ConnectionError:
+        print(f'\033[91m\033[1mCould not connect to {BASE_URLS[team]}/stats/{year}\033[0m')
+        return None
+
     soup = bs(page.content, "html.parser")
 
     return(soup)
@@ -119,26 +126,30 @@ def get_team_stats_sel(team,year=""):
     """
     Return a BeautifulSoup object for selected team and year cumulative stats when selenium is required
     """
+    try:
+        options = Options()
+        options.headless = True
+        options.add_argument('--window-size=1920,1200')
 
-    options = Options()
-    options.headless = True
-    options.add_argument('--window-size=1920,1200')
+        driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
+        page = '{BASE_URLS[team]}/stats/{year}'
+        driver.get(page)
+        print(f'\033[92mSuccessfully connected to {BASE_URLS[team]}/stats/{year}\033[0m')
 
-    driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
-    page = BASE_URLS[team]+"/stats/{}".format(year)
-    driver.get(page)
+        buttons= driver.find_elements(By.TAG_NAME,'button')
+        for button in buttons:
+            if button.text == 'Pitching' or button.text == 'Fielding':
+                button.click()
 
-    buttons= driver.find_elements(By.TAG_NAME,'button')
-    for button in buttons:
-        if button.text == 'Pitching' or button.text == 'Fielding':
-            button.click()
+        time.sleep(20)
 
-    time.sleep(20)
+        page_source = driver.page_source
+        soup = bs(page_source,'lxml')
 
-    page_source = driver.page_source
-    soup = bs(page_source,'lxml')
-
-    driver.quit()
+        driver.quit()
+    except WebDriverException:
+        print(f'\033[91m\033[1mCould not connect to {BASE_URLS[team]}/stats/{year}\033[0m')
+        return None
 
     return(soup)
 
@@ -247,35 +258,43 @@ def get_overall_fielding_stats(soup):
 
     return(df)
 
-def get_all_teams_overall_stats():
+def get_all_teams_overall_stats(year):
     SEL_REQUIRED = [
         'UAB',
         'WKU',
     ]
+    
 
     batting_stats = pd.DataFrame(columns=BATTING_COLUMNS)
     pitching_stats = pd.DataFrame(columns=PITCHING_COLUMNS)
     fielding_stats = pd.DataFrame(columns=FIELDING_COLUMNS)
 
+
     for key in BASE_URLS:
         print('Collecting stats for '+key+'...')
 
         if key not in SEL_REQUIRED:
-            soup = get_team_stats(key,'2022')
+            soup = get_team_stats(key,year)
         else:
-            soup = get_team_stats_sel(key,'2022')
+            soup = get_team_stats_sel(key,year)
 
-        temp_batting_df = get_overall_batting_stats(soup)
-        temp_pitching_df = get_overall_pitching_stats(soup)
-        temp_fielding_df = get_overall_fielding_stats(soup)
+        if soup is not None:
+            success = True
 
-        temp_batting_df['Team']=key
-        temp_pitching_df['Team']=key
-        temp_fielding_df['Team']=key
+            temp_batting_df = get_overall_batting_stats(soup)
+            temp_pitching_df = get_overall_pitching_stats(soup)
+            temp_fielding_df = get_overall_fielding_stats(soup)
 
-        batting_stats = pd.concat([batting_stats,temp_batting_df])
-        pitching_stats = pd.concat([pitching_stats,temp_pitching_df])
-        fielding_stats = pd.concat([fielding_stats,temp_fielding_df])
+            temp_batting_df['Team']=key
+            temp_pitching_df['Team']=key
+            temp_fielding_df['Team']=key
 
-    return((batting_stats.reset_index(drop=True),pitching_stats.reset_index(drop=True),fielding_stats.reset_index(drop=True)))
+            batting_stats = pd.concat([batting_stats,temp_batting_df])
+            pitching_stats = pd.concat([pitching_stats,temp_pitching_df])
+            fielding_stats = pd.concat([fielding_stats,temp_fielding_df])
+        else:
+            success = False
+    
+    if success:
+        return((batting_stats.reset_index(drop=True),pitching_stats.reset_index(drop=True),fielding_stats.reset_index(drop=True)))
         
