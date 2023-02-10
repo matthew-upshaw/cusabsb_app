@@ -24,10 +24,13 @@ def validate_svg(f):
 class Team(models.Model):
     name = models.CharField(max_length=50)
     mascot = models.CharField(max_length=50)
+    abbreviation = models.CharField(max_length=50)
     logo = models.ImageField(upload_to='team_logos', blank=True, null=True)
     logo_svg = models.FileField(upload_to='team_logos', validators=[validate_svg], blank=True, null=True)
-    abbreviation = models.CharField(max_length=50)
+    year_joined = models.CharField(max_length=50)
+    year_left = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
+    bsb_page = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name

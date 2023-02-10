@@ -15,12 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
+from stats.management.commands.add_data import current_date, season_dates, get_search_year
+
+home_url = f'http://127.0.0.1:8000/stats/{get_search_year(current_date)}/'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('stats.urls')),
+    path('', RedirectView.as_view(url=home_url), name='go-to-stats-home'),
+    path('stats/', include('stats.urls')),
 ]
 
 if settings.DEBUG:

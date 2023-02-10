@@ -2,21 +2,13 @@ from django.shortcuts import render
 from django.db.models import IntegerField, F
 from django.db.models.functions import Cast
 
-from stats.models import (
-    Batter,
-    Pitcher,
-    Fielder,
-)
+from stats.models import Batter, Pitcher, Fielder
+from teams.models import Team, Record
 
-from teams.models import (
-    Team,
-    Record,
-)
-
-def stat_home(request):
-    batters = Batter.objects.filter(is_latest=True).order_by('-ops')
-    pitchers = Pitcher.objects.filter(is_latest=True)
-    fielders = Fielder.objects.filter(is_latest=True)
+def stat_home(request,year):
+    batters = Batter.objects.filter(year=year, is_latest=True).order_by('-ops')
+    pitchers = Pitcher.objects.filter(year=year, is_latest=True).order_by('era')
+    fielders = Fielder.objects.filter(year=year, is_latest=True)
 
     current_avg_leaders = Batter.objects.annotate(
         games_played_int=Cast('games_played',output_field=IntegerField())
@@ -45,7 +37,7 @@ def stat_home(request):
     )[:5]
 
     standings = Record.objects.filter(
-        year=2022
+        year=year
     ).annotate(
         win_percentage=(1*F('wins_conf')+0.5*F('ties_conf'))/(F('wins_conf')+F('ties_conf')+F('losses_conf'))
     ).order_by(
@@ -60,6 +52,7 @@ def stat_home(request):
         'current_ops_leaders': current_ops_leaders,
         'current_hr_leaders': current_hr_leaders,
         'standings': standings,
+        'year': year,
     }
 
     return render(request, 'stat_home.html', context)

@@ -3,19 +3,14 @@ from stats.utils.scrapers import get_all_teams_overall_stats
 from sqlalchemy import create_engine
 from datetime import datetime
 import pytz
-import requests
 
-from stats.models import (
-    Batter,
-    Pitcher,
-    Fielder,
-)
+from stats.models import Batter, Pitcher, Fielder
 
 current_date = datetime.now(pytz.timezone('US/Central')).date()
 season_dates = {
-    '2023':[datetime(2023, 2, 17).date(), datetime(2023, 6, 27).date()],
-    '2024':[datetime(2024, 2, 16).date(), datetime(2024, 6, 25).date()],
-}
+        '2023':[datetime(2023, 2, 17).date(), datetime(2023, 6, 27).date()],
+        '2024':[datetime(2024, 2, 16).date(), datetime(2024, 6, 25).date()],
+    }
 
 def get_search_year(date):
     for year_key in season_dates:
@@ -30,7 +25,7 @@ BATTING_COLUMNS = [
     'first_name',
     'last_name',
     'number',
-    'team',
+    'team_id',
     'avg',
     'obp',
     'slg',
@@ -62,7 +57,7 @@ PITCHING_COLUMNS = [
     'first_name',
     'last_name',
     'number',
-    'team',
+    'team_id',
     'games_appeared',
     'games_started',
     'era',
@@ -97,7 +92,7 @@ FIELDING_COLUMNS = [
     'first_name',
     'last_name',
     'number',
-    'team',
+    'team_id',
     'catches',
     'putouts',
     'assists',
@@ -248,9 +243,9 @@ class Command(BaseCommand):
             print('Uploading the data to the database...')
 
             '''Change all existing is_latest fields to False.'''
-            Batter.objects.all().update(is_latest=False)
-            Pitcher.objects.all().update(is_latest=False)
-            Fielder.objects.all().update(is_latest=False)
+            Batter.objects.all().filter(year=stat_year).update(is_latest=False)
+            Pitcher.objects.all().filter(year=stat_year).update(is_latest=False)
+            Fielder.objects.all().filter(year=stat_year).update(is_latest=False)
 
             '''Set up the SQLite create engine.'''
             engine = create_engine('sqlite:///db.sqlite3')

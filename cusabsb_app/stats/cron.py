@@ -1,7 +1,7 @@
 from django.core.management import call_command
 from datetime import datetime
 import pytz
-from stats.management.commands.add_data import (current_date, season_dates)
+from stats.management.commands.add_data import current_date, season_dates
 
 def update_db():
     in_season = False

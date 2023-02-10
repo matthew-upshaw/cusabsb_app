@@ -2,3 +2,8 @@
     width: 50%;
     height: 50%;
 }
+
+.dropdown-menu {
+    max-height: 100px;
+    overflow: auto;
+}

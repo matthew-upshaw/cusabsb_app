@@ -1,10 +1,11 @@
 from django.db import models
+from teams.models import Team
 
 class Batter(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     number = models.CharField(max_length=50)
-    team = models.CharField(max_length=50)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
     avg = models.CharField(max_length=50)
     obp = models.CharField(max_length=50)
     slg = models.CharField(max_length=50)
@@ -32,13 +33,13 @@ class Batter(models.Model):
     year = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.first_name+' '+self.last_name+' - '+self.team
+        return self.first_name+' '+self.last_name+' - '+self.team.name
 
 class Pitcher(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     number = models.CharField(max_length=50)
-    team = models.CharField(max_length=50)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
     games_appeared = models.CharField(max_length=50)
     games_started = models.CharField(max_length=50)
     era = models.CharField(max_length=50)
@@ -69,13 +70,13 @@ class Pitcher(models.Model):
     year = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.first_name+' '+self.last_name+' - '+self.team
+        return self.first_name+' '+self.last_name+' - '+self.team.name
     
 class Fielder(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     number = models.CharField(max_length=50)
-    team = models.CharField(max_length=50)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
     catches = models.CharField(max_length=50)
     putouts = models.CharField(max_length=50)
     assists = models.CharField(max_length=50)
@@ -91,5 +92,5 @@ class Fielder(models.Model):
     year = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.first_name+' '+self.last_name+' - '+self.team
+        return self.first_name+' '+self.last_name+' - '+self.team.name
     
