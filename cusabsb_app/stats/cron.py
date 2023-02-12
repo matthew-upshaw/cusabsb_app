@@ -1,7 +1,7 @@
 from django.core.management import call_command
 from datetime import datetime
 import pytz
-from stats.management.commands.add_data import current_date, season_dates
+from cusabsb_app.stats.management.commands.add_data import current_date, season_dates
 
 def update_db():
     in_season = False
@@ -16,6 +16,7 @@ def update_db():
             print(year_key+' season is not ongoing.')
 
     if in_season:
+        call_command('update_records')
         call_command('add_data')
         pass
     else:

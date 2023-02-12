@@ -14,9 +14,6 @@ from django.db.models import Prefetch
 
 from teams.models import Team
 
-with open('/etc/cusabsb_app_config.json') as config_file:
-    config = json.load(config_file)
-
 BATTING_COLUMNS = [
         'Name',
         'Number',
@@ -126,7 +123,7 @@ def get_team_stats_sel(team,year=""):
         driver.get(page)
         print(f'\033[92m\033[1mSuccessfully connected to {team.bsb_page}/stats/{year}\033[0m')
 
-        buttons= driver.find_elements(By.TAG_NAME,'button')
+        buttons = driver.find_elements(By.TAG_NAME,'button')
         for button in buttons:
             if button.text == 'Pitching' or button.text == 'Fielding':
                 button.click()

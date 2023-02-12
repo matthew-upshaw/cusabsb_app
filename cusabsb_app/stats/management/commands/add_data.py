@@ -197,6 +197,7 @@ class Command(BaseCommand):
         '''Bring in the latest stats from each team's website.'''
         try:
             batting_stats,pitching_stats,fielding_stats = get_all_teams_overall_stats(stat_year)
+            
             print('Manipulating the dataframes...')
             '''Add a datetime field to each dataframe documenting the time it was updated.'''
             batting_stats['updated_at'] = datetime.now(pytz.timezone('US/Central'))
