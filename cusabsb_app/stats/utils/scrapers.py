@@ -9,25 +9,13 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
+from django.conf import settings
+from django.db.models import Prefetch
+
 from teams.models import Team
 
 with open('/etc/cusabsb_app_config.json') as config_file:
     config = json.load(config_file)
-
-DRIVER_PATH = config["CHROME_DRIVER_PATH"]
-
-'''BASE_URLS = {
-    "CHA":"https://charlotte49ers.com/sports/baseball",
-    "DBU":"https://dbupatriots.com/sports/baseball",
-    "FAU":"https://fausports.com/sports/baseball",
-    "FIU":"https://fiusports.com/sports/baseball",
-    "LAT":"https://latechsports.com/sports/baseball",
-    "MID":"https://goblueraiders.com/sports/baseball",
-    "RIC":"https://riceowls.com/sports/baseball",
-    "UAB":"https://uabsports.com/sports/baseball",
-    "UTS":"https://goutsa.com/sports/baseball",
-    "WKU":"https://wkusports.com/sports/baseball",
-}'''
 
 BATTING_COLUMNS = [
         'Name',
@@ -116,11 +104,8 @@ def get_team_stats(team,year=""):
     try:
         page = requests.get(f'{team.bsb_page}/stats/{year}')
         print(f'\033[92m\033[1mSuccessfully connected to {team.bsb_page}/stats/{year}\033[0m')
-        #page = requests.get(f'{BASE_URLS[team]}/stats/{year}')
-        #print(f'\033[92m\033[1mSuccessfully connected to {BASE_URLS[team]}/stats/{year}\033[0m')
     except requests.exceptions.ConnectionError:
         print(f'\033[91m\033[1mCould not connect to {team.bsb_page}/stats/{year}\033[0m')
-        #print(f'\033[91m\033[1mCould not connect to {BASE_URLS[team]}/stats/{year}\033[0m')
         return None
 
     soup = bs(page.content, "html.parser")
@@ -136,12 +121,10 @@ def get_team_stats_sel(team,year=""):
         options.headless = True
         options.add_argument('--window-size=1920,1200')
 
-        driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
+        driver = webdriver.Chrome(options=options, executable_path=settings.DRIVER_PATH)
         page = f'{team.bsb_page}/stats/{year}'
-        #page = f'{BASE_URLS[team]}/stats/{year}'
         driver.get(page)
         print(f'\033[92m\033[1mSuccessfully connected to {team.bsb_page}/stats/{year}\033[0m')
-        #print(f'\033[92m\033[1mSuccessfully connected to {BASE_URLS[team]}/stats/{year}\033[0m')
 
         buttons= driver.find_elements(By.TAG_NAME,'button')
         for button in buttons:
@@ -156,7 +139,6 @@ def get_team_stats_sel(team,year=""):
         driver.quit()
     except WebDriverException:
         print(f'\033[91m\033[1mCould not connect to {team.bsb_page}/stats/{year}\033[0m')
-        #print(f'\033[91m\033[1mCould not connect to {BASE_URLS[team]}/stats/{year}\033[0m')
         return None
 
     return(soup)
@@ -165,8 +147,6 @@ def get_overall_batting_stats(soup):
     """
     Return a pandas dataframe containing a team's overall batting stats
     """
-
-    #target_table = soup.findAll('table')[0]
     text_match = 'Individual Overall Batting Statistics'
     target_table = find_table(soup,text_match)
     table_rows = target_table.find_all('tr')
@@ -200,8 +180,6 @@ def get_overall_pitching_stats(soup):
     """
     Return a pandas dataframe containing a team's overall pitching stats
     """
-
-    #target_table = soup.findAll('table')[1]
     text_match = 'Individual Overall Pitching Statistics'
     target_table = find_table(soup,text_match)
     table_rows = target_table.find_all('tr')
@@ -235,8 +213,6 @@ def get_overall_fielding_stats(soup):
     """
     Return a pandas dataframe containing a team's overall fielding stats
     """
-
-    #target_table = soup.findAll('table')[2]
     text_match = 'Individual Overall Fielding Statistics'
     target_table = find_table(soup,text_match)
     table_rows = target_table.find_all('tr')
@@ -289,6 +265,9 @@ def get_all_teams_overall_stats(year):
             if soup is not None:
                 success = True
 
+                record = Team.objects.all().prefetch_related(Prefetch('record_set')).filter(id=team.id)[0].record_set.filter(year=year)[0]
+                team_games = record.wins_overall+record.losses_overall+record.ties_overall
+
                 temp_batting_df = get_overall_batting_stats(soup)
                 temp_pitching_df = get_overall_pitching_stats(soup)
                 temp_fielding_df = get_overall_fielding_stats(soup)
@@ -297,37 +276,15 @@ def get_all_teams_overall_stats(year):
                 temp_pitching_df['team_id']=team.id
                 temp_fielding_df['team_id']=team.id
 
+                temp_batting_df['team_games']=team_games
+                temp_pitching_df['team_games']=team_games
+                temp_fielding_df['team_games']=team_games
+
                 batting_stats = pd.concat([batting_stats,temp_batting_df])
                 pitching_stats = pd.concat([pitching_stats,temp_pitching_df])
                 fielding_stats = pd.concat([fielding_stats,temp_fielding_df])
             else:
                 success = False
-
-
-    '''for key in BASE_URLS:
-        print('Collecting stats for '+key+'...')
-
-        if key not in SEL_REQUIRED:
-            soup = get_team_stats(key,year)
-        else:
-            soup = get_team_stats_sel(key,year)
-
-        if soup is not None:
-            success = True
-
-            temp_batting_df = get_overall_batting_stats(soup)
-            temp_pitching_df = get_overall_pitching_stats(soup)
-            temp_fielding_df = get_overall_fielding_stats(soup)
-
-            temp_batting_df['Team']=key
-            temp_pitching_df['Team']=key
-            temp_fielding_df['Team']=key
-
-            batting_stats = pd.concat([batting_stats,temp_batting_df])
-            pitching_stats = pd.concat([pitching_stats,temp_pitching_df])
-            fielding_stats = pd.concat([fielding_stats,temp_fielding_df])
-        else:
-            success = False'''
     
     if success:
         return((batting_stats.reset_index(drop=True),pitching_stats.reset_index(drop=True),fielding_stats.reset_index(drop=True)))

@@ -135,3 +135,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRONJOBS = [
     ('0 5 * * *', 'stats.cron.update_db', '>> '+config["CRON_LOG_DIR"]),
 ]
+
+DRIVER_PATH = config["CHROME_DRIVER_PATH"]

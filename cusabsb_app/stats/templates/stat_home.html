@@ -40,7 +40,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for batter in batters %}
+                {% for batter in qualified_batters %}
                     <tr>
                         <td>{{ batter.first_name }}</td>
                         <td>{{ batter.last_name }}</td>
@@ -89,7 +89,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for pitcher in pitchers %}
+                {% for pitcher in qualified_pitchers %}
                     <tr>
                         <td>{{ pitcher.first_name }}</td>
                         <td>{{ pitcher.last_name }}</td>

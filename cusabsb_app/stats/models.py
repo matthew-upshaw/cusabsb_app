@@ -31,6 +31,7 @@ class Batter(models.Model):
     updated_at = models.DateTimeField()
     is_latest = models.BooleanField()
     year = models.CharField(max_length=50)
+    team_games = models.IntegerField()
 
     def __str__(self):
         return self.first_name+' '+self.last_name+' - '+self.team.name
@@ -68,6 +69,7 @@ class Pitcher(models.Model):
     updated_at = models.DateTimeField()
     is_latest = models.BooleanField()
     year = models.CharField(max_length=50)
+    team_games = models.IntegerField()
 
     def __str__(self):
         return self.first_name+' '+self.last_name+' - '+self.team.name
@@ -90,6 +92,7 @@ class Fielder(models.Model):
     updated_at = models.DateField()
     is_latest = models.BooleanField()
     year = models.CharField(max_length=50)
+    team_games = models.IntegerField()
 
     def __str__(self):
         return self.first_name+' '+self.last_name+' - '+self.team.name

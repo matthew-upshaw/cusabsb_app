@@ -51,6 +51,7 @@ BATTING_COLUMNS = [
     'updated_at',
     'is_latest',
     'year',
+    'team_games',
 ]
 
 PITCHING_COLUMNS = [
@@ -86,6 +87,7 @@ PITCHING_COLUMNS = [
     'updated_at',
     'is_latest',
     'year',
+    'team_games',
 ]
 
 FIELDING_COLUMNS = [
@@ -106,6 +108,7 @@ FIELDING_COLUMNS = [
     'updated_at',
     'is_latest',
     'year',
+    'team_games',
 ]
 
 def manipulate_names(df):
